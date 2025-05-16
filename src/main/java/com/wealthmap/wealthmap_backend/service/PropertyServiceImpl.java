@@ -80,4 +80,12 @@ public class PropertyServiceImpl implements PropertyService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<PropertyDTO> filterByPropertyType(String type) {
+        return propertyRepository.findAll().stream()
+                .filter(p -> p.getPropertyType().equalsIgnoreCase(type))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

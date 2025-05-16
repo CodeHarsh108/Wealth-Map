@@ -52,5 +52,11 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.filterByMinValue(minValue));
     }
 
+    // 7. Filter by type
+    @GetMapping("/filter/type")
+    public ResponseEntity<List<PropertyDTO>> filterByType(@RequestParam String type) {
+        return ResponseEntity.ok(propertyService.filterByPropertyType(type));
+    }
+
 
 }

@@ -18,4 +18,6 @@ public interface PropertyService {
     void deleteProperty(Long id);
 
     List<PropertyDTO> filterByMinValue(double minValue);
+
+    List<PropertyDTO> filterByPropertyType(String type);
 }
