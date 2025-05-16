@@ -1,5 +1,7 @@
 package com.wealthmap.wealthmap_backend.controller;
+import com.wealthmap.wealthmap_backend.config.AppConstants;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
+import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 import com.wealthmap.wealthmap_backend.service.PropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +21,14 @@ public class PropertyController {
 
     // 1. Get all properties
     @GetMapping
-    public ResponseEntity<List<PropertyDTO>> getAllProperties() {
-        return ResponseEntity.ok(propertyService.getAllProperties());
+    public ResponseEntity<PropertyResponse> getAllProperties(
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue =AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue =AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue =AppConstants.SORT_DIR, required = false) String sortOrder
+    ) {
+        PropertyResponse propertyResponse = (PropertyResponse) propertyService.getAllProperties(pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(propertyResponse, HttpStatus.OK);
     }
 
     // 2. Get property by ID

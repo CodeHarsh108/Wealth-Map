@@ -1,9 +1,15 @@
 package com.wealthmap.wealthmap_backend.service;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
+import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 import com.wealthmap.wealthmap_backend.model.Property;
 import com.wealthmap.wealthmap_backend.repository.PropertyRepository;
+import jdk.jfr.Category;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,11 +29,24 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public List<PropertyDTO> getAllProperties() {
-        return propertyRepository.findAll()
-                .stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public PropertyResponse getAllProperties(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageDetails = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+        Page<Property> propertyPage = propertyRepository.findAll(pageDetails);
+        List<Property> properties = propertyPage.getContent();
+        if(properties.isEmpty())
+            throw new RuntimeException("No properties found");
+        List<PropertyDTO> propertyDTOS = properties.stream()
+                .map(property -> modelMapper.map(property, PropertyDTO.class)).toList();
+        PropertyResponse propertyResponse = new PropertyResponse();
+        propertyResponse.setContent(propertyDTOS);
+        propertyResponse.setPageNumber(propertyPage.getNumber());
+        propertyResponse.setPageSize(propertyPage.getSize());
+        propertyResponse.setTotalElements(propertyPage.getTotalElements());
+        propertyResponse.setTotalPages(propertyPage.getTotalPages());
+        propertyResponse.setLastPage(propertyPage.isLast());
+        return propertyResponse;
     }
 
     @Override
