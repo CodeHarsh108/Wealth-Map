@@ -104,4 +104,16 @@ public class PropertyServiceImpl implements PropertyService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<PropertyDTO> filterByMapBounds(double minLat, double maxLat, double minLng, double maxLng) {
+        return propertyRepository.findAll().stream()
+                .filter(p ->
+                        p.getLatitude() >= minLat &&
+                                p.getLatitude() <= maxLat &&
+                                p.getLongitude() >= minLng &&
+                                p.getLongitude() <= maxLng)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

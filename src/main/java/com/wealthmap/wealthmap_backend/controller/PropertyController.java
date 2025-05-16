@@ -64,10 +64,20 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.filterBySizeRange(min, max));
     }
 
-    // 🎯9. Search by owner name (partial match)
+    // 9. Search by owner name (partial match)
     @GetMapping("/search/owner")
     public ResponseEntity<List<PropertyDTO>> searchByOwner(@RequestParam String name) {
         return ResponseEntity.ok(propertyService.searchByOwnerName(name));
+    }
+
+    //  10. Filter by bounding box (for map view)
+    @GetMapping("/filter/map-bounds")
+    public ResponseEntity<List<PropertyDTO>> filterByMapBounds(
+            @RequestParam double minLat,
+            @RequestParam double maxLat,
+            @RequestParam double minLng,
+            @RequestParam double maxLng) {
+        return ResponseEntity.ok(propertyService.filterByMapBounds(minLat, maxLat, minLng, maxLng));
     }
 
 

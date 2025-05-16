@@ -24,4 +24,6 @@ public interface PropertyService {
     List<PropertyDTO> filterBySizeRange(double min, double max);
 
     List<PropertyDTO> searchByOwnerName(String name);
+
+    List<PropertyDTO> filterByMapBounds(double minLat, double maxLat, double minLng, double maxLng);
 }
