@@ -1,7 +1,9 @@
 package com.wealthmap.wealthmap_backend.controller;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.service.PropertyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,13 +31,15 @@ public class PropertyController {
 
     // 3. Create new property
     @PostMapping
-    public ResponseEntity<PropertyDTO> createProperty(@RequestBody PropertyDTO dto) {
-        return ResponseEntity.ok(propertyService.createProperty(dto));
+    public ResponseEntity<PropertyDTO> createProperty(@Valid @RequestBody PropertyDTO dto) {
+        PropertyDTO saved = propertyService.createProperty(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
 
     // 4. Update property
     @PutMapping("/{id}")
-    public ResponseEntity<PropertyDTO> updateProperty(@PathVariable Long id, @RequestBody PropertyDTO dto) {
+    public ResponseEntity<PropertyDTO> updateProperty(@PathVariable Long id, @RequestBody @Valid PropertyDTO dto) {
         return ResponseEntity.ok(propertyService.updateProperty(id, dto));
     }
 
