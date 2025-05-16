@@ -43,4 +43,41 @@ public class PropertyServiceImpl implements PropertyService {
         return convertToDTO(saved);
     }
 
+    @Override
+    public PropertyDTO updateProperty(Long id, PropertyDTO dto) {
+        Property existing = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found with ID: " + id));
+
+        // Update fields from DTO to existing entity
+        existing.setAddress(dto.getAddress());
+        existing.setCity(dto.getCity());
+        existing.setState(dto.getState());
+        existing.setZipCode(dto.getZipCode());
+        existing.setLatitude(dto.getLatitude());
+        existing.setLongitude(dto.getLongitude());
+        existing.setValue(dto.getValue());
+        existing.setSizeInSqFt(dto.getSizeInSqFt());
+        existing.setPropertyType(dto.getPropertyType());
+        existing.setOwnerName(dto.getOwnerName());
+        existing.setCompanyName(dto.getCompanyName());
+        existing.setEstimatedNetWorth(dto.getEstimatedNetWorth());
+
+        // Save and return updated DTO
+        Property updated = propertyRepository.save(existing);
+        return convertToDTO(updated);
+    }
+
+    @Override
+    public void deleteProperty(Long id) {
+        propertyRepository.deleteById(id);
+    }
+
+    @Override
+    public List<PropertyDTO> filterByMinValue(double minValue) {
+        return propertyRepository.findAll().stream()
+                .filter(p -> p.getValue() >= minValue)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

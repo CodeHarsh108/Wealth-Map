@@ -12,4 +12,10 @@ public interface PropertyService {
     PropertyDTO getPropertyById(Long id);
 
     PropertyDTO createProperty(PropertyDTO dto);
+
+    PropertyDTO updateProperty(Long id, PropertyDTO dto);
+
+    void deleteProperty(Long id);
+
+    List<PropertyDTO> filterByMinValue(double minValue);
 }

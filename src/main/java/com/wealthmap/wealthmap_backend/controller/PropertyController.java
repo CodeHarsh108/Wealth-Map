@@ -33,5 +33,24 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.createProperty(dto));
     }
 
+    // 4. Update property
+    @PutMapping("/{id}")
+    public ResponseEntity<PropertyDTO> updateProperty(@PathVariable Long id, @RequestBody PropertyDTO dto) {
+        return ResponseEntity.ok(propertyService.updateProperty(id, dto));
+    }
+
+    //  5. Delete property
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProperty(@PathVariable Long id) {
+        propertyService.deleteProperty(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    //  6. Filter by value >= min
+    @GetMapping("/filter/value")
+    public ResponseEntity<List<PropertyDTO>> filterByMinValue(@RequestParam double minValue) {
+        return ResponseEntity.ok(propertyService.filterByMinValue(minValue));
+    }
+
 
 }
