@@ -58,5 +58,13 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.filterByPropertyType(type));
     }
 
+    //  8. Filter by size range
+    @GetMapping("/filter/size")
+    public ResponseEntity<List<PropertyDTO>> filterBySizeRange(@RequestParam double min, @RequestParam double max) {
+        return ResponseEntity.ok(propertyService.filterBySizeRange(min, max));
+    }
+
+
+
 
 }

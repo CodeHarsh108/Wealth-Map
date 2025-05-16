@@ -88,4 +88,12 @@ public class PropertyServiceImpl implements PropertyService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<PropertyDTO> filterBySizeRange(double min, double max) {
+        return propertyRepository.findAll().stream()
+                .filter(p -> p.getSizeInSqFt() >= min && p.getSizeInSqFt() <= max)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }
