@@ -18,13 +18,14 @@ public interface PropertyService {
 
     void deleteProperty(Long id);
 
-    List<PropertyDTO> filterByMinValue(double minValue);
+    PropertyResponse filterByMinValue(double minValue, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    List<PropertyDTO> filterByPropertyType(String type);
+    PropertyResponse filterByPropertyType(String type, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    List<PropertyDTO> filterBySizeRange(double min, double max);
+    PropertyResponse filterBySizeRange(double min, double max, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    List<PropertyDTO> searchByOwnerName(String name);
+    PropertyResponse searchByOwnerName(String name, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
-    List<PropertyDTO> filterByMapBounds(double minLat, double maxLat, double minLng, double maxLng);
+    PropertyResponse filterByMapBounds(double minLat, double maxLat, double minLng, double maxLng,
+                                       Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 }

@@ -60,37 +60,76 @@ public class PropertyController {
 
     //  6. Filter by value >= min
     @GetMapping("/filter/value")
-    public ResponseEntity<List<PropertyDTO>> filterByMinValue(@RequestParam double minValue) {
-        return ResponseEntity.ok(propertyService.filterByMinValue(minValue));
+    public ResponseEntity<PropertyResponse> filterByMinValue(
+            @RequestParam double minValue,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
+    ) {
+        PropertyResponse response = (PropertyResponse) propertyService.filterByMinValue(minValue, pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     // 7. Filter by type
     @GetMapping("/filter/type")
-    public ResponseEntity<List<PropertyDTO>> filterByType(@RequestParam String type) {
-        return ResponseEntity.ok(propertyService.filterByPropertyType(type));
+    public ResponseEntity<PropertyResponse> filterByType(
+            @RequestParam String type,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
+    ) {
+        PropertyResponse response = (PropertyResponse) propertyService.filterByPropertyType(type, pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     //  8. Filter by size range
     @GetMapping("/filter/size")
-    public ResponseEntity<List<PropertyDTO>> filterBySizeRange(@RequestParam double min, @RequestParam double max) {
-        return ResponseEntity.ok(propertyService.filterBySizeRange(min, max));
+    public ResponseEntity<PropertyResponse> filterBySizeRange(
+            @RequestParam double min,
+            @RequestParam double max,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
+    ) {
+        PropertyResponse response = (PropertyResponse) propertyService.filterBySizeRange(min, max, pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     // 9. Search by owner name (partial match)
     @GetMapping("/search/owner")
-    public ResponseEntity<List<PropertyDTO>> searchByOwner(@RequestParam String name) {
-        return ResponseEntity.ok(propertyService.searchByOwnerName(name));
+    public ResponseEntity<PropertyResponse> searchByOwner(
+            @RequestParam String name,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
+    ) {
+        PropertyResponse response = (PropertyResponse) propertyService.searchByOwnerName(name, pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
     //  10. Filter by bounding box (for map view)
     @GetMapping("/filter/map-bounds")
-    public ResponseEntity<List<PropertyDTO>> filterByMapBounds(
+    public ResponseEntity<PropertyResponse> filterByMapBounds(
             @RequestParam double minLat,
             @RequestParam double maxLat,
             @RequestParam double minLng,
-            @RequestParam double maxLng) {
-        return ResponseEntity.ok(propertyService.filterByMapBounds(minLat, maxLat, minLng, maxLng));
+            @RequestParam double maxLng,
+            @RequestParam(name = "pageNumber", defaultValue = AppConstants.PAGE_NUMBER, required = false) Integer pageNumber,
+            @RequestParam(name = "pageSize", defaultValue = AppConstants.PAGE_SIZE, required = false) Integer pageSize,
+            @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
+            @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
+    ) {
+        PropertyResponse response = (PropertyResponse) propertyService.filterByMapBounds(minLat, maxLat, minLng, maxLng, pageNumber, pageSize, sortBy, sortOrder);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
 
 
 

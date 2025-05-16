@@ -92,47 +92,118 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
     @Override
-    public List<PropertyDTO> filterByMinValue(double minValue) {
-        return propertyRepository.findAll().stream()
-                .filter(p -> p.getValue() >= minValue)
+    public PropertyResponse filterByMinValue(double minValue, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Property> propertyPage = propertyRepository.findByValueGreaterThanEqual(minValue, pageable);
+        List<PropertyDTO> dtos = propertyPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        PropertyResponse response = new PropertyResponse();
+        response.setContent(dtos);
+        response.setPageNumber(propertyPage.getNumber());
+        response.setPageSize(propertyPage.getSize());
+        response.setTotalElements(propertyPage.getTotalElements());
+        response.setTotalPages(propertyPage.getTotalPages());
+        response.setLastPage(propertyPage.isLast());
+        return response;
     }
 
-    @Override
-    public List<PropertyDTO> filterByPropertyType(String type) {
-        return propertyRepository.findAll().stream()
-                .filter(p -> p.getPropertyType().equalsIgnoreCase(type))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
 
     @Override
-    public List<PropertyDTO> filterBySizeRange(double min, double max) {
-        return propertyRepository.findAll().stream()
-                .filter(p -> p.getSizeInSqFt() >= min && p.getSizeInSqFt() <= max)
+    public PropertyResponse filterByPropertyType(String type, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
+                Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sortByAndOrder);
+
+        Page<Property> propertyPage = propertyRepository.findByPropertyTypeIgnoreCase(type, pageable);
+        List<PropertyDTO> dtos = propertyPage.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        PropertyResponse response = new PropertyResponse();
+        response.setContent(dtos);
+        response.setPageNumber(propertyPage.getNumber());
+        response.setPageSize(propertyPage.getSize());
+        response.setTotalElements(propertyPage.getTotalElements());
+        response.setTotalPages(propertyPage.getTotalPages());
+        response.setLastPage(propertyPage.isLast());
+        return response;
     }
 
-    @Override
-    public List<PropertyDTO> searchByOwnerName(String name) {
-        return propertyRepository.findAll().stream()
-                .filter(p -> p.getOwnerName() != null && p.getOwnerName().toLowerCase().contains(name.toLowerCase()))
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
-    }
 
     @Override
-    public List<PropertyDTO> filterByMapBounds(double minLat, double maxLat, double minLng, double maxLng) {
-        return propertyRepository.findAll().stream()
-                .filter(p ->
-                        p.getLatitude() >= minLat &&
-                                p.getLatitude() <= maxLat &&
-                                p.getLongitude() >= minLng &&
-                                p.getLongitude() <= maxLng)
+    public PropertyResponse filterBySizeRange(double min, double max, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<Property> page = propertyRepository.findBySizeInSqFtBetween(min, max, pageable);
+
+        List<PropertyDTO> dtos = page.getContent().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
+        PropertyResponse response = new PropertyResponse();
+        response.setContent(dtos);
+        response.setPageNumber(page.getNumber());
+        response.setPageSize(page.getSize());
+        response.setTotalElements(page.getTotalElements());
+        response.setTotalPages(page.getTotalPages());
+        response.setLastPage(page.isLast());
+
+        return response;
     }
+
+
+    @Override
+    public PropertyResponse searchByOwnerName(String name, Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+        Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<Property> page = propertyRepository.findByOwnerNameContainingIgnoreCase(name, pageable);
+
+        List<PropertyDTO> dtos = page.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        PropertyResponse response = new PropertyResponse();
+        response.setContent(dtos);
+        response.setPageNumber(page.getNumber());
+        response.setPageSize(page.getSize());
+        response.setTotalElements(page.getTotalElements());
+        response.setTotalPages(page.getTotalPages());
+        response.setLastPage(page.isLast());
+
+        return response;
+    }
+
+
+    @Override
+    public PropertyResponse filterByMapBounds(double minLat, double maxLat, double minLng, double maxLng,
+                                              Integer pageNumber, Integer pageSize, String sortBy, String sortOrder) {
+
+        Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        Page<Property> page = propertyRepository.findByLatitudeBetweenAndLongitudeBetween(minLat, maxLat, minLng, maxLng, pageable);
+
+        List<PropertyDTO> dtos = page.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        PropertyResponse response = new PropertyResponse();
+        response.setContent(dtos);
+        response.setPageNumber(page.getNumber());
+        response.setPageSize(page.getSize());
+        response.setTotalElements(page.getTotalElements());
+        response.setTotalPages(page.getTotalPages());
+        response.setLastPage(page.isLast());
+
+        return response;
+    }
+
 
 }
