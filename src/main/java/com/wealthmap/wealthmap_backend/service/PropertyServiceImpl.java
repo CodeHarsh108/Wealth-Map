@@ -96,4 +96,12 @@ public class PropertyServiceImpl implements PropertyService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<PropertyDTO> searchByOwnerName(String name) {
+        return propertyRepository.findAll().stream()
+                .filter(p -> p.getOwnerName() != null && p.getOwnerName().toLowerCase().contains(name.toLowerCase()))
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
 }

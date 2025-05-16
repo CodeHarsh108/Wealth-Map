@@ -22,4 +22,6 @@ public interface PropertyService {
     List<PropertyDTO> filterByPropertyType(String type);
 
     List<PropertyDTO> filterBySizeRange(double min, double max);
+
+    List<PropertyDTO> searchByOwnerName(String name);
 }

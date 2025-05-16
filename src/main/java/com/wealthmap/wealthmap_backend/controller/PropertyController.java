@@ -64,6 +64,11 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.filterBySizeRange(min, max));
     }
 
+    // 🎯9. Search by owner name (partial match)
+    @GetMapping("/search/owner")
+    public ResponseEntity<List<PropertyDTO>> searchByOwner(@RequestParam String name) {
+        return ResponseEntity.ok(propertyService.searchByOwnerName(name));
+    }
 
 
 
