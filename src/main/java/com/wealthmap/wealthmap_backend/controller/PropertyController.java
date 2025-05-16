@@ -27,5 +27,11 @@ public class PropertyController {
         return ResponseEntity.ok(propertyService.getPropertyById(id));
     }
 
+    // 3. Create new property
+    @PostMapping
+    public ResponseEntity<PropertyDTO> createProperty(@RequestBody PropertyDTO dto) {
+        return ResponseEntity.ok(propertyService.createProperty(dto));
+    }
+
 
 }
