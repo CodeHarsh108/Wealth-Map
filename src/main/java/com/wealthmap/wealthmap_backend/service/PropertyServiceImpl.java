@@ -30,4 +30,11 @@ public class PropertyServiceImpl implements PropertyService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public PropertyDTO getPropertyById(Long id) {
+        Property property = propertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found with ID: " + id));
+        return convertToDTO(property);
+    }
+
 }

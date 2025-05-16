@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface PropertyService {
     List<PropertyDTO> getAllProperties();
+
+    PropertyDTO getPropertyById(Long id);
 }

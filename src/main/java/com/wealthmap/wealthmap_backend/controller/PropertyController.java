@@ -3,10 +3,7 @@ import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.service.PropertyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,6 +19,12 @@ public class PropertyController {
     @GetMapping
     public ResponseEntity<List<PropertyDTO>> getAllProperties() {
         return ResponseEntity.ok(propertyService.getAllProperties());
+    }
+
+    // 2. Get property by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<PropertyDTO> getPropertyById(@PathVariable Long id) {
+        return ResponseEntity.ok(propertyService.getPropertyById(id));
     }
 
 
