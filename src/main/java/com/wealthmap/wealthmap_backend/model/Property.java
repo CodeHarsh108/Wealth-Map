@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.locationtech.jts.geom.Point;
+
 
 @Entity
 @Data
@@ -37,15 +39,8 @@ public class Property {
     private String zipCode;
 
     // 🔹 Geo Info
-    @NotNull(message = "Latitude must be selected")
-    @DecimalMin(value = "-90.0", message = "Latitude must be ≥ -90")
-    @DecimalMax(value = "90.0", message = "Latitude must be ≤ 90")
-    private Double latitude;
-
-    @NotNull(message = "Longitude must be selected")
-    @DecimalMin(value = "-180.0", message = "Longitude must be ≥ -180")
-    @DecimalMax(value = "180.0", message = "Longitude must be ≤ 180")
-    private Double longitude;
+    @Column(columnDefinition = "geometry(Point, 4326)")
+    private Point location;
 
     // 🔹 Property Characteristics
     @NotNull(message = "Value must be selected")
