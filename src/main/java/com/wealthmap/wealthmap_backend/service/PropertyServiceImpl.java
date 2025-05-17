@@ -232,4 +232,32 @@ public class PropertyServiceImpl implements PropertyService {
     }
 
 
+    @Override
+    public PropertyResponse filterByDistance(double lat, double lng, double radiusInKm,
+                                             int pageNumber, int pageSize,
+                                             String sortBy, String sortOrder) {
+
+        Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
+        double radiusInMeters = radiusInKm * 1000;
+
+        Page<Property> propertyPage = propertyRepository.findPropertiesWithinDistance(lat, lng, radiusInMeters, pageable);
+        List<PropertyDTO> dtos = propertyPage.getContent().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+
+        PropertyResponse response = new PropertyResponse();
+        response.setContent(dtos);
+        response.setPageNumber(propertyPage.getNumber());
+        response.setPageSize(propertyPage.getSize());
+        response.setTotalElements(propertyPage.getTotalElements());
+        response.setTotalPages(propertyPage.getTotalPages());
+        response.setLastPage(propertyPage.isLast());
+
+        return response;
+    }
+
+
+
 }

@@ -11,15 +11,9 @@ public class WealthmapBackendApplication {
 	}
 
 }
- //Notes :
-//✅ Filter by Bounding Box
-//“Show me properties inside the current map view.”
-//→ Needed for your Leaflet map when zooming/panning
-//
-//✅ Radius Search (Near Me)
-//“Show all properties within 10km of this point.”
-//→ Great for “Explore nearby assets” kind of features
-//
+
+
+
 //✅ Clustering & Aggregation
 //“Group properties together for heatmaps or markers.”
 //→ Perfect for efficient map rendering

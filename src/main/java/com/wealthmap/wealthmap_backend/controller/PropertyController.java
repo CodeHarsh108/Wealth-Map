@@ -129,6 +129,21 @@ public class PropertyController {
     }
 
 
+    //Properties within certain radius
+    @GetMapping("/radius")
+    public ResponseEntity<PropertyResponse> getPropertiesWithinRadius(
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam double radiusInKm,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortOrder
+    ) {
+        PropertyResponse response = propertyService.filterByDistance(lat, lng, radiusInKm, page, size, sortBy, sortOrder);
+        return ResponseEntity.ok(response);
+    }
+
 
 
 }

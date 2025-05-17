@@ -30,4 +30,14 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             @Param("maxLat") double maxLat,
             @Param("minLng") double minLng,
             @Param("maxLng") double maxLng,
-            Pageable pageable);}
+            Pageable pageable);
+
+    @Query(value = "SELECT * FROM property p WHERE ST_DWithin(p.location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography, :radius)", nativeQuery = true)
+    Page<Property> findPropertiesWithinDistance(@Param("lat") double lat,
+                                                @Param("lng") double lng,
+                                                @Param("radius") double radiusInMeters,
+                                                Pageable pageable);
+
+
+
+}

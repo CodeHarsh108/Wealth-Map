@@ -28,4 +28,9 @@ public interface PropertyService {
 
     PropertyResponse filterByMapBounds(double minLat, double maxLat, double minLng, double maxLng,
                                        Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
+
+    PropertyResponse filterByDistance(double lat, double lng, double radiusInKm,
+                                      int pageNumber, int pageSize,
+                                      String sortBy, String sortOrder);
+
 }
