@@ -126,7 +126,7 @@ public class PropertyController {
             @RequestParam(name = "sortBy", defaultValue = AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue = AppConstants.SORT_DIR, required = false) String sortOrder
     ) {
-        PropertyResponse response = (PropertyResponse) propertyService.filterByMapBounds(minLat, maxLat, minLng, maxLng, pageNumber, pageSize, sortBy, sortOrder);
+        PropertyResponse response = propertyService.filterByMapBounds(minLat, maxLat, minLng, maxLng, pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

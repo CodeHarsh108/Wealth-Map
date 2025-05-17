@@ -3,7 +3,6 @@ import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 import com.wealthmap.wealthmap_backend.model.Property;
 import com.wealthmap.wealthmap_backend.repository.PropertyRepository;
-import jdk.jfr.Category;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -13,6 +12,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.geom.Coordinate;
+
 
 @Service
 @RequiredArgsConstructor
@@ -20,12 +23,31 @@ public class PropertyServiceImpl implements PropertyService {
     private final PropertyRepository propertyRepository;
     private final ModelMapper modelMapper;
 
+    private final GeometryFactory geometryFactory = new GeometryFactory();
+
+
     private PropertyDTO convertToDTO(Property property) {
-        return modelMapper.map(property, PropertyDTO.class);
+        PropertyDTO dto = modelMapper.map(property, PropertyDTO.class);
+
+        if (property.getLocation() != null) {
+            dto.setLatitude(property.getLocation().getY());
+            dto.setLongitude(property.getLocation().getX());
+        }
+
+        return dto;
     }
 
+
     private Property convertToEntity(PropertyDTO dto) {
-        return modelMapper.map(dto, Property.class);
+        Property property = modelMapper.map(dto, Property.class);
+
+        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+            Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+            point.setSRID(4326);
+            property.setLocation(point);
+        }
+
+        return property;
     }
 
     @Override
@@ -72,8 +94,11 @@ public class PropertyServiceImpl implements PropertyService {
         existing.setCity(dto.getCity());
         existing.setState(dto.getState());
         existing.setZipCode(dto.getZipCode());
-        existing.setLatitude(dto.getLatitude());
-        existing.setLongitude(dto.getLongitude());
+        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+            Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+            point.setSRID(4326);
+            existing.setLocation(point);
+        }
         existing.setValue(dto.getValue());
         existing.setSizeInSqFt(dto.getSizeInSqFt());
         existing.setPropertyType(dto.getPropertyType());
@@ -188,7 +213,7 @@ public class PropertyServiceImpl implements PropertyService {
         Sort sort = sortOrder.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        Page<Property> page = propertyRepository.findByLatitudeBetweenAndLongitudeBetween(minLat, maxLat, minLng, maxLng, pageable);
+        Page<Property> page = propertyRepository.findByLocationWithinBounds(minLat, maxLat, minLng, maxLng, pageable);
 
         List<PropertyDTO> dtos = page.getContent().stream()
                 .map(this::convertToDTO)
