@@ -39,6 +39,7 @@ public class Property {
     private String zipCode;
 
     // 🔹 Geo Info
+    @NotNull
     @Column(columnDefinition = "geometry(Point, 4326)")
     private Point location;
 

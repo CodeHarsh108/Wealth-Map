@@ -29,10 +29,10 @@ public class PropertyServiceImpl implements PropertyService {
     private PropertyDTO convertToDTO(Property property) {
         PropertyDTO dto = modelMapper.map(property, PropertyDTO.class);
 
-        if (property.getLocation() != null) {
-            dto.setLatitude(property.getLocation().getY());
-            dto.setLongitude(property.getLocation().getX());
-        }
+        // Extract latitude/longitude from Point (assuming location is mandatory)
+        Point location = property.getLocation();
+        dto.setLatitude(location.getY());  // latitude = Y coordinate
+        dto.setLongitude(location.getX()); // longitude = X coordinate
 
         return dto;
     }
@@ -41,11 +41,12 @@ public class PropertyServiceImpl implements PropertyService {
     private Property convertToEntity(PropertyDTO dto) {
         Property property = modelMapper.map(dto, Property.class);
 
-        if (dto.getLatitude() != null && dto.getLongitude() != null) {
-            Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
-            point.setSRID(4326);
-            property.setLocation(point);
-        }
+        // Create and set Point (validation already handled by @NotNull)
+        Point point = geometryFactory.createPoint(
+                new Coordinate(dto.getLongitude(), dto.getLatitude())
+        );
+        point.setSRID(4326);
+        property.setLocation(point);
 
         return property;
     }
