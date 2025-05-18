@@ -62,4 +62,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
             @Param("gridSize") double gridSize
     );
 
+    @Query(value = "SELECT * FROM property p WHERE ST_Within(p.location, ST_GeomFromText(:polygon, 4326))", nativeQuery = true)
+    List<Property> findWithinPolygon(@Param("polygon") String polygonWKT);
+
+
 }

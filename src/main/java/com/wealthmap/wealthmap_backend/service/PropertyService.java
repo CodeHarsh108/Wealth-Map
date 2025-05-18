@@ -1,6 +1,7 @@
 package com.wealthmap.wealthmap_backend.service;
 
 import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
+import com.wealthmap.wealthmap_backend.dto.PolygonSearchDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 
@@ -36,6 +37,8 @@ public interface PropertyService {
 
     List<ClusterDTO> getClusters(double lat, double lng, double radius, double gridSize);
 
+
+    List<PropertyDTO> findPropertiesWithinPolygon(PolygonSearchDTO polygonSearchDTO);
 
 
 }

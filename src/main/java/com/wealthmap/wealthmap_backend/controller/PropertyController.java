@@ -1,6 +1,7 @@
 package com.wealthmap.wealthmap_backend.controller;
 import com.wealthmap.wealthmap_backend.config.AppConstants;
 import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
+import com.wealthmap.wealthmap_backend.dto.PolygonSearchDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 import com.wealthmap.wealthmap_backend.service.PropertyService;
@@ -150,6 +151,7 @@ public class PropertyController {
     }
 
 
+    //Clusters
     @GetMapping("/clusters")
     public ResponseEntity<List<ClusterDTO>> getClusters(
             @RequestParam double lat,
@@ -157,6 +159,15 @@ public class PropertyController {
             @RequestParam double radius,
             @RequestParam(defaultValue = "0.05") double gridSize) {
         return ResponseEntity.ok(propertyService.getClusters(lat, lng, radius, gridSize));
+    }
+
+
+
+    //Polygon search
+    @PostMapping("/polygon-search")
+    public ResponseEntity<List<PropertyDTO>> getByPolygon(@RequestBody PolygonSearchDTO polygonSearchDTO) {
+        List<PropertyDTO> properties = propertyService.findPropertiesWithinPolygon(polygonSearchDTO);
+        return ResponseEntity.ok(properties);
     }
 
 

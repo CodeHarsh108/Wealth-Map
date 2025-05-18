@@ -1,5 +1,6 @@
 package com.wealthmap.wealthmap_backend.service;
 import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
+import com.wealthmap.wealthmap_backend.dto.PolygonSearchDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 import com.wealthmap.wealthmap_backend.model.Property;
@@ -271,6 +272,20 @@ public class PropertyServiceImpl implements PropertyService {
             double avgNetWorth = row[4] != null ? ((Number) row[4]).doubleValue() : 0.0;
             return new ClusterDTO(latitude, longitude, count, avgValue, avgNetWorth);
         }).toList();
+    }
+
+    @Override
+    public List<PropertyDTO> findPropertiesWithinPolygon(PolygonSearchDTO polygonSearchDTO) {
+        StringBuilder wkt = new StringBuilder("POLYGON((");
+        for (Double[] coord : polygonSearchDTO.getCoordinates()) {
+            wkt.append(coord[0]).append(" ").append(coord[1]).append(", ");
+        }
+        // Close polygon: repeat first coord at end
+        Double[] first = polygonSearchDTO.getCoordinates().get(0);
+        wkt.append(first[0]).append(" ").append(first[1]).append("))");
+
+        List<Property> properties = propertyRepository.findWithinPolygon(wkt.toString());
+        return properties.stream().map(this::convertToDTO).toList();
     }
 
 

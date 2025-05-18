@@ -14,10 +14,6 @@ public class WealthmapBackendApplication {
 
 
 
-//
-//✅ Polygon Search
-//“User draws a shape on map → show what’s inside.”
-//→ This is Zillow-level pro stuff 👑
-//
+
 //✅ Distance Sorting
 //“Sort properties by how close they are to me or to a company HQ.”
