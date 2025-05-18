@@ -1,5 +1,6 @@
 package com.wealthmap.wealthmap_backend.controller;
 import com.wealthmap.wealthmap_backend.config.AppConstants;
+import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 import com.wealthmap.wealthmap_backend.service.PropertyService;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/properties")
@@ -28,6 +31,8 @@ public class PropertyController {
         PropertyResponse propertyResponse = (PropertyResponse) propertyService.getAllProperties(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(propertyResponse, HttpStatus.OK);
     }
+
+
 
     // 2. Get property by ID
     @GetMapping("/{id}")
@@ -143,6 +148,18 @@ public class PropertyController {
         PropertyResponse response = propertyService.filterByDistance(lat, lng, radiusInKm, page, size, sortBy, sortOrder);
         return ResponseEntity.ok(response);
     }
+
+
+    @GetMapping("/clusters")
+    public ResponseEntity<List<ClusterDTO>> getClusters(
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam double radius,
+            @RequestParam(defaultValue = "0.05") double gridSize) {
+        return ResponseEntity.ok(propertyService.getClusters(lat, lng, radius, gridSize));
+    }
+
+
 
 
 

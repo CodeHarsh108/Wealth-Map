@@ -14,9 +14,6 @@ public class WealthmapBackendApplication {
 
 
 
-//✅ Clustering & Aggregation
-//“Group properties together for heatmaps or markers.”
-//→ Perfect for efficient map rendering
 //
 //✅ Polygon Search
 //“User draws a shape on map → show what’s inside.”

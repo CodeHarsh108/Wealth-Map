@@ -8,6 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Map;
+
 @Repository
 public interface PropertyRepository extends JpaRepository<Property, Long> {
 
@@ -39,5 +42,21 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
                                                 Pageable pageable);
 
 
+
+
+    @Query(value = """
+    SELECT ST_X(ST_Centroid(ST_Collect(p.location))) as lon,
+           ST_Y(ST_Centroid(ST_Collect(p.location))) as lat,
+           COUNT(*) as count
+    FROM property p
+    WHERE ST_DWithin(p.location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326), :radius)
+    GROUP BY ST_SnapToGrid(p.location, :gridSize)
+    """, nativeQuery = true)
+    List<Object[]> clusterProperties(
+            @Param("lat") double lat,
+            @Param("lng") double lng,
+            @Param("radius") double radius,
+            @Param("gridSize") double gridSize
+    );
 
 }

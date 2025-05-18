@@ -1,4 +1,5 @@
 package com.wealthmap.wealthmap_backend.service;
+import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
 import com.wealthmap.wealthmap_backend.model.Property;
@@ -257,6 +258,19 @@ public class PropertyServiceImpl implements PropertyService {
 
         return response;
     }
+
+
+    @Override
+    public List<ClusterDTO> getClusters(double lat, double lng, double radius, double gridSize) {
+        List<Object[]> results = propertyRepository.clusterProperties(lat, lng, radius, gridSize);
+        return results.stream().map(row -> {
+            double longitude = ((Number) row[0]).doubleValue();
+            double latitude = ((Number) row[1]).doubleValue();
+            long count = ((Number) row[2]).longValue();
+            return new ClusterDTO(latitude, longitude, count);
+        }).toList();
+    }
+
 
 
 

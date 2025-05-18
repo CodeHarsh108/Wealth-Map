@@ -1,8 +1,8 @@
 package com.wealthmap.wealthmap_backend.service;
 
+import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -32,5 +32,10 @@ public interface PropertyService {
     PropertyResponse filterByDistance(double lat, double lng, double radiusInKm,
                                       int pageNumber, int pageSize,
                                       String sortBy, String sortOrder);
+
+
+    List<ClusterDTO> getClusters(double lat, double lng, double radius, double gridSize);
+
+
 
 }
