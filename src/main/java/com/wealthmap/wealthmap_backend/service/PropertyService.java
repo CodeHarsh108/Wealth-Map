@@ -40,5 +40,8 @@ public interface PropertyService {
 
     List<PropertyDTO> findPropertiesWithinPolygon(PolygonSearchDTO polygonSearchDTO);
 
+    List<PropertyDTO> getPropertiesSortedByDistance(double lat, double lng, int limit);
+
+
 
 }

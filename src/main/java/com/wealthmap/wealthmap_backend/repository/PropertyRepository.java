@@ -66,4 +66,12 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     List<Property> findWithinPolygon(@Param("polygon") String polygonWKT);
 
 
+    @Query(value = """
+    SELECT *, ST_Distance(location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)) AS distance
+    FROM property
+    ORDER BY location <-> ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)
+    LIMIT :limit
+    """, nativeQuery = true)
+    List<Property> findPropertiesSortedByDistance(@Param("lat") double lat, @Param("lng") double lng, @Param("limit") int limit);
+
 }

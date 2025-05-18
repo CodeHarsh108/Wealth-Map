@@ -288,6 +288,13 @@ public class PropertyServiceImpl implements PropertyService {
         return properties.stream().map(this::convertToDTO).toList();
     }
 
+    @Override
+    public List<PropertyDTO> getPropertiesSortedByDistance(double lat, double lng, int limit) {
+        List<Property> properties = propertyRepository.findPropertiesSortedByDistance(lat, lng, limit);
+        return properties.stream().map(this::convertToDTO).toList();
+    }
+
+
 
 
 

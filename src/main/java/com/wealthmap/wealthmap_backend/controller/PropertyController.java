@@ -170,6 +170,15 @@ public class PropertyController {
         return ResponseEntity.ok(properties);
     }
 
+    //Sort by distance
+    @GetMapping("/sort-by-distance")
+    public ResponseEntity<List<PropertyDTO>> sortByDistance(
+            @RequestParam double lat,
+            @RequestParam double lng,
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(propertyService.getPropertiesSortedByDistance(lat, lng, limit));
+    }
+
 
 
 

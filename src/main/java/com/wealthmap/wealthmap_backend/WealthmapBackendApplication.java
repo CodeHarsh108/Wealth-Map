@@ -14,6 +14,3 @@ public class WealthmapBackendApplication {
 
 
 
-
-//✅ Distance Sorting
-//“Sort properties by how close they are to me or to a company HQ.”
