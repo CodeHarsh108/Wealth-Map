@@ -267,9 +267,12 @@ public class PropertyServiceImpl implements PropertyService {
             double longitude = ((Number) row[0]).doubleValue();
             double latitude = ((Number) row[1]).doubleValue();
             long count = ((Number) row[2]).longValue();
-            return new ClusterDTO(latitude, longitude, count);
+            double avgValue = row[3] != null ? ((Number) row[3]).doubleValue() : 0.0;
+            double avgNetWorth = row[4] != null ? ((Number) row[4]).doubleValue() : 0.0;
+            return new ClusterDTO(latitude, longitude, count, avgValue, avgNetWorth);
         }).toList();
     }
+
 
 
 

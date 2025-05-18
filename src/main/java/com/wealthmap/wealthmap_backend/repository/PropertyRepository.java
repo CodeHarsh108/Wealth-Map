@@ -45,9 +45,12 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
 
 
     @Query(value = """
-    SELECT ST_X(ST_Centroid(ST_Collect(p.location))) as lon,
-           ST_Y(ST_Centroid(ST_Collect(p.location))) as lat,
-           COUNT(*) as count
+    SELECT 
+        ST_X(ST_Centroid(ST_Collect(p.location))) AS lon,
+        ST_Y(ST_Centroid(ST_Collect(p.location))) AS lat,
+        COUNT(*) AS count,
+        AVG(p.value) AS avg_value,
+        AVG(p.estimated_net_worth) AS avg_net_worth
     FROM property p
     WHERE ST_DWithin(p.location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326), :radius)
     GROUP BY ST_SnapToGrid(p.location, :gridSize)

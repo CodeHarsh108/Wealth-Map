@@ -11,4 +11,6 @@ public class ClusterDTO {
     private double latitude;
     private double longitude;
     private long count;
+    private double avgValue;
+    private double avgNetWorth;
 }
