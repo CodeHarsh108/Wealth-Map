@@ -9,7 +9,7 @@ public class WealthmapBackendApplication {
 
 	public static void main(String[] args) {
 		SpringApplication app = new SpringApplication(WealthmapBackendApplication.class);
-		app.addInitializers(new EnvLoader()); // <- This line is important
+		app.addInitializers(new EnvLoader());
 		app.run(args);
 	}
 
