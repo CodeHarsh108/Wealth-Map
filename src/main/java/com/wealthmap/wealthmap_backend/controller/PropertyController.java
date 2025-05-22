@@ -4,6 +4,8 @@ import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
 import com.wealthmap.wealthmap_backend.dto.PolygonSearchDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
+import com.wealthmap.wealthmap_backend.model.Property;
+import com.wealthmap.wealthmap_backend.repository.PropertyRepository;
 import com.wealthmap.wealthmap_backend.service.PropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,8 @@ import java.util.List;
 public class PropertyController {
 
     private final PropertyService propertyService;
+
+    private final PropertyRepository propertyRepository;
 
     // 1. Get all properties
     @GetMapping
@@ -178,6 +182,22 @@ public class PropertyController {
             @RequestParam(defaultValue = "10") int limit) {
         return ResponseEntity.ok(propertyService.getPropertiesSortedByDistance(lat, lng, limit));
     }
+
+    @PostMapping("/save")
+    public ResponseEntity<?> saveProperty(@RequestBody Property property) {
+        try {
+            Property savedProperty = propertyService.saveProperty(property);
+            return ResponseEntity.ok(savedProperty);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to save property: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/saved")
+    public List<Property> getAllSavedProperties() {
+        return propertyRepository.findAll();
+    }
+
 
 
 

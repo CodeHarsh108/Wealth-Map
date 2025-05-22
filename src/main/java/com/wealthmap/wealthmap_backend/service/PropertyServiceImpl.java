@@ -294,6 +294,11 @@ public class PropertyServiceImpl implements PropertyService {
         return properties.stream().map(this::convertToDTO).toList();
     }
 
+    @Override
+    public Property saveProperty(Property property) {
+        return propertyRepository.save(property);
+    }
+
 
 
 

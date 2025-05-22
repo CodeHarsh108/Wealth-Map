@@ -4,6 +4,7 @@ import com.wealthmap.wealthmap_backend.dto.ClusterDTO;
 import com.wealthmap.wealthmap_backend.dto.PolygonSearchDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyDTO;
 import com.wealthmap.wealthmap_backend.dto.PropertyResponse;
+import com.wealthmap.wealthmap_backend.model.Property;
 
 import java.util.List;
 
@@ -42,6 +43,7 @@ public interface PropertyService {
 
     List<PropertyDTO> getPropertiesSortedByDistance(double lat, double lng, int limit);
 
+    Property saveProperty(Property property);
 
 
 }
