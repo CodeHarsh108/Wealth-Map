@@ -278,14 +278,19 @@ public class PropertyServiceImpl implements PropertyService {
     public List<PropertyDTO> findPropertiesWithinPolygon(PolygonSearchDTO polygonSearchDTO) {
         StringBuilder wkt = new StringBuilder("POLYGON((");
         for (Double[] coord : polygonSearchDTO.getCoordinates()) {
-            wkt.append(coord[0]).append(" ").append(coord[1]).append(", ");
+            wkt.append(coord[1]).append(" ").append(coord[0]).append(", ");
         }
-        // Close polygon: repeat first coord at end
-        Double[] first = polygonSearchDTO.getCoordinates().get(0);
-        wkt.append(first[0]).append(" ").append(first[1]).append("))");
 
-        List<Property> properties = propertyRepository.findWithinPolygon(wkt.toString());
-        return properties.stream().map(this::convertToDTO).toList();
+        // Close the polygon by repeating the first coordinate
+        Double[] firstCoord = polygonSearchDTO.getCoordinates().get(0);
+        wkt.append(firstCoord[1]).append(" ").append(firstCoord[0]).append("))");
+
+        // Query database
+        List<Property> properties = propertyRepository.findByPolygonWKT(wkt.toString());
+
+        return properties.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -65,6 +65,8 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     @Query(value = "SELECT * FROM property p WHERE ST_Within(p.location, ST_GeomFromText(:polygon, 4326))", nativeQuery = true)
     List<Property> findWithinPolygon(@Param("polygon") String polygonWKT);
 
+    @Query(value = "SELECT * FROM property WHERE ST_Within(location, ST_GeomFromText(:wkt, 4326))", nativeQuery = true)
+    List<Property> findByPolygonWKT(@Param("wkt") String wkt);
 
     @Query(value = """
     SELECT *, ST_Distance(location, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)) AS distance

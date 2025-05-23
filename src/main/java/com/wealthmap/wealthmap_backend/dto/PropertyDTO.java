@@ -23,8 +23,7 @@ public class PropertyDTO {
     @Size(max = 50, message = "State must be less than 50 characters")
     private String state;
 
-    @NotNull(message = "Zipcode must be selected")
-    @Size(max = 5, message = "ZipCode must be less than 5 characters")
+    @Pattern(regexp = "^\\d{5}(-\\d{4})?$", message = "Invalid Zip Code format")
     private String zipCode;
 
     // 🔹 Geo Info

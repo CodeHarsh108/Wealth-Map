@@ -35,7 +35,7 @@ public class Property {
     private String state;
 
     @NotNull(message = "Zipcode must be selected")
-    @Size(max = 5, message = "ZipCode must be less than 5 characters")
+    @Pattern(regexp = "^\\d{5}(-\\d{4})?$", message = "Invalid Zip Code format")
     private String zipCode;
 
     // 🔹 Geo Info
