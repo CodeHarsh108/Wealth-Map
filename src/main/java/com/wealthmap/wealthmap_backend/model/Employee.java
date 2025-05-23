@@ -48,4 +48,11 @@ public class Employee {
         this.joinedAt = LocalDateTime.now();
         this.active = true;
     }
+
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
+    private EmployeeAccount account;
+
+    @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
+    private EmployeeNotificationSetting notificationSetting;
+
 }
