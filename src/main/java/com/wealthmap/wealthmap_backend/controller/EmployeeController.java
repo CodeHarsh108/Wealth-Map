@@ -2,6 +2,7 @@ package com.wealthmap.wealthmap_backend.controller;
 
 import com.wealthmap.wealthmap_backend.dto.EmployeeRequestDto;
 import com.wealthmap.wealthmap_backend.dto.EmployeeResponseDto;
+import com.wealthmap.wealthmap_backend.service.EmailService;
 import com.wealthmap.wealthmap_backend.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,31 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    // Invite (create) employee linked to a company
+    private final EmailService emailService;
+
     @PostMapping("/invite/{companyId}")
-    public ResponseEntity<EmployeeResponseDto> inviteEmployee(@PathVariable Long companyId, @Valid @RequestBody EmployeeRequestDto dto) {
+    public ResponseEntity<EmployeeResponseDto> inviteEmployee(
+            @PathVariable Long companyId,
+            @Valid @RequestBody EmployeeRequestDto dto) {
+
         EmployeeResponseDto response = employeeService.inviteEmployee(companyId, dto);
+
+        // Compose email
+        String emailBody = "<p>Hello <strong>" + response.getName() + "</strong>,<br><br>" +
+                "You’ve been invited to join the company on <em>WealthMap</em>." +
+                "<br>Click the link below to activate your access:<br>" +
+                "<a href='https://your-frontend-url.com/onboarding'>Join Now</a></p>";
+
+        // Send email
+        emailService.sendEmail(
+                response.getEmail(),
+                "You're Invited to WealthMap!",
+                emailBody
+        );
+
         return ResponseEntity.ok(response);
     }
+
 
     // Get all employees for a company (for admin view)
     @GetMapping("/company/{companyId}")
