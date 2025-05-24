@@ -1,10 +1,10 @@
 package com.wealthmap.wealthmap_backend.model;
 
+import com.wealthmap.wealthmap_backend.model.MfaMethod;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,15 +20,21 @@ public class EmployeeAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+//
+//    @Email
+//    @NotBlank(message = "Email is required")
+//    private String email;
 
-    @Email
-    @NotBlank(message = "Email is required")
-    private String email;
 
     @NotBlank(message = "Password is required")
     private String password;
 
     private boolean mfaEnabled;
+
+    @Enumerated(EnumType.STRING)
+    private MfaMethod mfaMethod;
+
+    private String mfaSecret;
 
     private boolean acceptedTerms;
 
@@ -55,4 +61,7 @@ public class EmployeeAccount {
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    @Enumerated(EnumType.STRING)
+    private NotificationPreference notificationPreference;
 }

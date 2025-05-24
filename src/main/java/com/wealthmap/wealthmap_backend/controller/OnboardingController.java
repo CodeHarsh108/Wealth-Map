@@ -21,33 +21,33 @@ public class OnboardingController {
         return ResponseEntity.ok().build();
     }
 
-//    @PostMapping("/create-account")
-//    public ResponseEntity<Void> createAccount(@Valid @RequestBody AccountSetupDto dto) {
-//        onboardingService.createAccount(dto);
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    @PostMapping("/mfa/setup")
-//    public ResponseEntity<Void> setupMfa(@Valid @RequestBody MfaSetupDto dto) {
-//        onboardingService.setupMfa(dto);
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    @PostMapping("/tos/accept")
-//    public ResponseEntity<Void> acceptTermsOfService(@Valid @RequestBody TosAcceptanceDto dto) {
-//        onboardingService.acceptTermsOfService(dto);
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    @PostMapping("/tutorial/complete")
-//    public ResponseEntity<Void> completeTutorial(@RequestParam Long employeeId) {
-//        onboardingService.completeTutorial(employeeId);
-//        return ResponseEntity.ok().build();
-//    }
-//
-//    @PutMapping("/notifications")
-//    public ResponseEntity<Void> updateNotificationPrefs(@Valid @RequestBody NotificationPreferencesDto dto) {
-//        onboardingService.updateNotificationPreferences(dto);
-//        return ResponseEntity.ok().build();
-//    }
+    @PostMapping("/create-account")
+    public ResponseEntity<Void> createAccount(@Valid @RequestBody AccountSetupDto dto) throws BadRequestException{
+        onboardingService.createAccount(dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/mfa/setup")
+    public ResponseEntity<Void> setupMfa(@Valid @RequestBody MfaSetupDto dto) {
+        onboardingService.setupMfa(dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/tos/accept")
+    public ResponseEntity<Void> acceptTermsOfService(@Valid @RequestBody TermsAcceptanceDto dto) {
+        onboardingService.acceptTermsOfService(dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/tutorial/complete")
+    public ResponseEntity<Void> completeTutorial(@RequestParam Long employeeId) {
+        onboardingService.completeTutorial(employeeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping("/notifications")
+    public ResponseEntity<Void> updateNotificationPrefs(@Valid @RequestBody NotificationPreferenceDto dto) {
+        onboardingService.updateNotificationPreferences(dto);
+        return ResponseEntity.ok().build();
+    }
 }

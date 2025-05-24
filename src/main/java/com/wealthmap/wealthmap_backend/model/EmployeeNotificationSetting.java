@@ -21,4 +21,12 @@ public class EmployeeNotificationSetting {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private Employee employee;
+
+    @Setter
+    @Getter
+    private boolean emailNotificationsEnabled;
+    @Setter
+    @Getter
+    private boolean pushNotificationsEnabled;
+
 }

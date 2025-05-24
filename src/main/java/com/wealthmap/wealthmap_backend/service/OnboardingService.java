@@ -7,13 +7,13 @@ public interface OnboardingService {
 
     void acceptInvitation(AcceptInvitationDto dto) throws BadRequestException;
 
-//    void createAccount(AccountSetupDto dto);
-//
-//    void setupMfa(MfaSetupDto dto);
-//
-//    void acceptTermsOfService(TosAcceptanceDto dto);
-//
-//    void completeTutorial(Long employeeId);
-//
-//    void updateNotificationPreferences(NotificationPreferencesDto dto);
+    void createAccount(AccountSetupDto dto) throws BadRequestException;
+
+    void setupMfa(MfaSetupDto dto);
+
+    void acceptTermsOfService(TermsAcceptanceDto dto);
+
+    void completeTutorial(Long employeeId);
+
+    void updateNotificationPreferences(NotificationPreferenceDto dto);
 }
