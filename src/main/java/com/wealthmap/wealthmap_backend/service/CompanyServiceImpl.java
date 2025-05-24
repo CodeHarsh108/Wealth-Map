@@ -3,6 +3,7 @@ package com.wealthmap.wealthmap_backend.service;
 import com.wealthmap.wealthmap_backend.dto.*;
 import com.wealthmap.wealthmap_backend.model.Company;
 import com.wealthmap.wealthmap_backend.repository.CompanyRepository;
+import com.wealthmap.wealthmap_backend.repository.EmployeeRepository;
 import com.wealthmap.wealthmap_backend.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -22,6 +23,7 @@ public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
     private final ModelMapper modelMapper;
+    private final EmployeeRepository employeeRepository;
 
     @Override
     public CompanyResponseDto createCompany(CompanyRequestDto requestDto) {
@@ -53,10 +55,17 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     @Override
+    @Transactional
     public void deleteCompany(Long companyId) {
+        // 1. Check if the company exists (optional)
         if (!companyRepository.existsById(companyId)) {
-            throw new RuntimeException("Company not found");
+            throw new RuntimeException("Company not found with ID: " + companyId);
         }
+
+        // 2. Delete all employees linked to this company
+        employeeRepository.deleteEmployeesByCompanyId(companyId);
+
+        // 3. Now safely delete the company
         companyRepository.deleteById(companyId);
     }
 

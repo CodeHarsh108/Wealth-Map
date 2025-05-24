@@ -55,4 +55,10 @@ public class Employee {
     @OneToOne(mappedBy = "employee", cascade = CascadeType.ALL)
     private EmployeeNotificationSetting notificationSetting;
 
+    @Column(name = "accepted_invite", nullable = false)
+    private Boolean acceptedInvite = false;
+
+    @Column(name = "invitation_accepted_at")
+    private LocalDateTime invitationAcceptedAt;
+
 }
