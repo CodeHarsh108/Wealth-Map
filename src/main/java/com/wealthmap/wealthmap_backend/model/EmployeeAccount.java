@@ -1,6 +1,7 @@
 package com.wealthmap.wealthmap_backend.model;
 
 import com.wealthmap.wealthmap_backend.model.MfaMethod;
+import com.wealthmap.wealthmap_backend.security.EncryptedStringConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -34,6 +35,7 @@ public class EmployeeAccount {
     @Enumerated(EnumType.STRING)
     private MfaMethod mfaMethod;
 
+    @Convert(converter = EncryptedStringConverter.class)
     private String mfaSecret;
 
     private boolean acceptedTerms;

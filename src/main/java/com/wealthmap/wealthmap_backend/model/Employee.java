@@ -1,6 +1,7 @@
 package com.wealthmap.wealthmap_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wealthmap.wealthmap_backend.security.EncryptedStringConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -23,6 +24,7 @@ public class Employee {
     private Long id;
 
     @Email(message = "Email must be valid")
+    @Convert(converter = EncryptedStringConverter.class)
     @NotBlank(message = "Email is required")
     private String email;
 
@@ -33,6 +35,7 @@ public class Employee {
 
     @Size(min = 8, message = "Password must be at least 8 characters")
     @Column(name = "password")
+    @Convert(converter = EncryptedStringConverter.class)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // Never returned in JSON
     private String password;
 
