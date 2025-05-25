@@ -25,6 +25,8 @@ public class OnboardingServiceImpl implements OnboardingService {
     private final EmployeeNotificationSettingRepository notificationSettingRepository;
     private final MapperConfig mapperConfig;
     private final PasswordEncoder passwordEncoder;
+    private final AccessLoggingService accessLoggingService;
+    private final jakarta.servlet.http.HttpServletRequest request;
 
     EmployeeAccount account = new EmployeeAccount();
 
@@ -100,6 +102,12 @@ public class OnboardingServiceImpl implements OnboardingService {
         account.setMfaSecret(dto.getSecret());
 
         employeeAccountRepository.save(account);
+        accessLoggingService.logAccess(
+                dto.getEmployeeId(),
+                "MFA_SETUP",
+                request.getRemoteAddr(),
+                request.getHeader("User-Agent")
+        );
     }
 
     @Override
@@ -129,6 +137,12 @@ public class OnboardingServiceImpl implements OnboardingService {
 
         // Step 4: Save updated account
         employeeAccountRepository.save(account);
+        accessLoggingService.logAccess(
+                employeeId,
+                "TUTORIAL_COMPLETED",
+                request.getRemoteAddr(),
+                request.getHeader("User-Agent")
+        );
     }
     @Override
     @Transactional
