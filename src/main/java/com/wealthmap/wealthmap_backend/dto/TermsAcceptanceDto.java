@@ -15,4 +15,6 @@ public class TermsAcceptanceDto {
     private String email;
 
     private boolean accepted;
+
+
 }

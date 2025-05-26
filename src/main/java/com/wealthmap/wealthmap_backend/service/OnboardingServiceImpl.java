@@ -123,6 +123,7 @@ public class OnboardingServiceImpl implements OnboardingService {
 
         // Update terms acceptance
         account.setAcceptedTerms(dto.isAccepted());
+
         employeeAccountRepository.save(account);
     }
     @Override

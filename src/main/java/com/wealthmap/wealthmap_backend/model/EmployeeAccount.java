@@ -66,4 +66,6 @@ public class EmployeeAccount {
 
     @Enumerated(EnumType.STRING)
     private NotificationPreference notificationPreference;
+
+
 }
