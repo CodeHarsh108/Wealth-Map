@@ -7,6 +7,7 @@ import com.wealthmap.wealthmap_backend.repository.EmployeeRepository;
 import com.wealthmap.wealthmap_backend.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +36,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponseDto updateCompany(Long companyId, CompanyRequestDto requestDto) {
         Company company = companyRepository.findById(companyId)
-                .orElseThrow(() -> new RuntimeException("Company not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID: " + companyId));
 
         company.setName(requestDto.getName());
         company.setDescription(requestDto.getDescription());
@@ -50,7 +51,7 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     public CompanyResponseDto getCompany(Long companyId) {
         Company company = companyRepository.findById(companyId)
-                .orElseThrow(() -> new RuntimeException("Company not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID: " + companyId));
         return modelMapper.map(company, CompanyResponseDto.class);
     }
 
@@ -59,7 +60,7 @@ public class CompanyServiceImpl implements CompanyService {
     public void deleteCompany(Long companyId) {
         // 1. Check if the company exists (optional)
         if (!companyRepository.existsById(companyId)) {
-            throw new RuntimeException("Company not found with ID: " + companyId);
+            throw new ResourceNotFoundException("Company not found with ID: " + companyId);
         }
 
         // 2. Delete all employees linked to this company
@@ -70,9 +71,9 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
 @Override
-public void updateDataAccessPreferences(Long id, CompanyDataAccessDto dataAccessDto) {
-    Company company = companyRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Company not found"));
+public void updateDataAccessPreferences(Long companyId, CompanyDataAccessDto dataAccessDto) {
+    Company company = companyRepository.findById(companyId)
+            .orElseThrow(() -> new ResourceNotFoundException("Company not found with ID: " + companyId));
 
     company.setDataAccessPreferences(dataAccessDto.getPreferences());
     companyRepository.save(company);

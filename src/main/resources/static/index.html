@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wealth App</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: relative;
+        }
+
+        #map {
+            flex: 1;
+            width: 100%;
+            min-height: 60vh;
+        }
+
+        #controls {
+            padding: 10px;
+            background: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+
+        .leaflet-control-attribution {
+            font-size: 10px;
+            background: rgba(255,255,255,0.7);
+        }
+
+        .save-btn {
+            padding: 8px 12px;
+            background-color: #1f70b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .save-btn.saved {
+            background-color: #12ea32;
+            cursor: default;
+            animation: pulse 0.6s ease;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                background-color: #1f70b3;
+            }
+            50% {
+                transform: scale(1.08);
+                background-color: #8de693;
+            }
+            100% {
+                transform: scale(1);
+                background-color: #00f752;
+            }
+        }
+
+        #savedProperties {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+
+        /* Properties list panel */
+        #properties-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 60vh;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        #properties-panel.show {
+            transform: translateY(0);
+        }
+
+        .property-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .property-card:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .property-card img {
+            width: 100%;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .property-card h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .property-card p {
+            margin: 3px 0;
+            font-size: 14px;
+        }
+
+        /* Toggle button */
+        #toggle-properties-btn {
+            position: absolute;
+            top: 125px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        @media (min-width: 768px) {
+            #app-container {
+                flex-direction: row;
+            }
+
+            #map {
+                height: 100vh;
+                min-height: auto;
+            }
+
+            #controls {
+                width: 300px;
+                height: 100vh;
+                overflow-y: auto;
+                border-top: none;
+                border-right: 1px solid #ddd;
+            }
+
+            .save-btn {
+                width: auto;
+            }
+
+            #savedProperties {
+                width: calc(100% - 20px);
+            }
+
+            #properties-panel {
+                width: 350px;
+                right: auto;
+                top: 0;
+                bottom: 0;
+                transform: translateX(-100%);
+                box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+                max-height: none;
+            }
+
+            #properties-panel.show {
+                transform: translateX(0);
+            }
+
+            #toggle-properties-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="app-container">
+    <div id="map"></div>
+    <div id="controls">
+        <label for="savedProperties"><b>Saved Properties:</b></label>
+        <select id="savedProperties" onchange="goToSavedProperty(this.value)">
+            <option value="">-- None Yet --</option>
+        </select>
+    </div>
+
+    <button id="toggle-properties-btn" onclick="togglePropertiesPanel()" title="Properties">
+        <i class="fas fa-list"></i>
+    </button>
+
+    <div id="properties-panel">
+        <h2>All Properties</h2>
+        <div id="properties-list"></div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+<script>
+    // Initialize map
+    var map = L.map('map').setView([39.0119, -98.4842], 5);
+
+    // Tile layers
+    var osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+
+    var googleSat = L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.{ext}', {
+        minZoom: 0,
+        maxZoom: 20,
+        attribution: '&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        ext: 'jpg'
+    });
+
+    var googleTerrain = L.tileLayer('http://{s}.google.com/vt?lyrs=p&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+
+    // Add initial layer
+    googleSat.addTo(map);
+
+    // Custom icon
+    var myIcon = L.icon({
+        iconUrl: ,
+        iconSize: [40, 40],
+        iconAnchor: [20, 40],
+        popupAnchor: [0, -40]
+    });
+
+    // Marker layer group
+    var markerLayer = L.layerGroup().addTo(map);
+    var allMarkers = []; // Store all markers for reference
+
+    // List of sample house images
+    const houseImages = [
+        "https://photos.zillowstatic.com/fp/96c727acb85d241cc4b518244cc88a21-cc_ft_960.webp",
+        "https://maps.googleapis.com/maps/api/streetview?location=456+Oak+Ave%2C+Malaga%2C+NJ+08328&size=960x720&key=AIzaSyARFMLB1na-BBWf7_R3-5YOQQaHqEJf6RQ&source=outdoor&&signature=dvI4x659bA79Bxn6ZzTo8VdgGTM=",
+        "https://photos.zillowstatic.com/fp/573b22a5f3310132629f27bd55e44415-cc_ft_1536.jpg",
+        "https://photos.zillowstatic.com/fp/72566f96975e9dd0353945897fcbf984-cc_ft_960.webp",
+        "https://p.rdcpix.com/v01/l48271743-m0od-w640_h480.jpg",
+        "https://photos.zillowstatic.com/fp/04d85fe0f5d3345e28064384b32ebce5-cc_ft_1536.jpg",
+        "https://photos.zillowstatic.com/fp/ec7afddb17c2ac53471330f5d8c735a3-cc_ft_1536.jpg",
+        "https://www.trulia.com/pictures/thumbs_5/zillowstatic/fp/cfe62773ca2330c1021379847907e135-full.jpg",
+        "https://photos.zillowstatic.com/fp/a9afa144ec8aa3fe1407ab9f99d61a35-cc_ft_1536.jpg",
+        "https://photos.zillowstatic.com/fp/4925cef8454624d84a03b5a2a842506e-cc_ft_1536.jpg",
+        "https://photos.zillowstatic.com/fp/81cee720f9d3e3609c79a2773075c20d-cc_ft_960.jpg",
+        "https://photos.zillowstatic.com/fp/81cee720f9d3e3609c79a2773075c20d-cc_ft_960.jpg",
+        "https://www.edinarealty.com/listing-images/listing/RMLS/4919-Upton-Avenue-N-Minneapolis-MN-55430-6444729-image1.jpg",
+        "https://photos.zillowstatic.com/fp/f63bdf75c649643911046ce17d14c43b-cc_ft_960.jpg",
+        "https://photos.zillowstatic.com/fp/939ceade65ce89c44959e5fdbdd1ec7e-cc_ft_1536.jpg",
+        "https://th.bing.com/th/id/R.ce022988ba5c9e0250010c9211e12240?rik=Ze%2fRLjef1VEBIg&riu=http%3a%2f%2fap.rdcpix.com%2f535598b4305bf2ee1e62eb239e257306l-m1718356539od-w480_h480_q80.jpg&ehk=8MEnv5KZeGFuCvNC6pjx7OVxCh1zIvMO7jHTxNmjzFQ%3d&risl=&pid=ImgRaw&r=0",
+        "https://www.trulia.com/pictures/thumbs_6/zillowstatic/fp/cd5e3692c78b2956c1d71fb96b6ef4a2-full.jpg",
+        "https://www.trulia.com/pictures/thumbs_6/zillowstatic/fp/30df12faabe1c2ef48fa2c016f25b93c-full.jpg",
+        "https://images1.apartments.com/i2/rh2_AQDg5C2ElKIQC1QstIMmkPn7XRRYl8jDgyQquE4/111/4-br-15-bath-house---864-longfellow-detroit-mi-primary-photo.jpg",
+        "https://images1.apartments.com/i2/VDA27GQNHeOUuvswMaq6VdG_DxzHtqXNsi-mHhhya1A/111/2292-redwood-ave-memphis-tn-primary-photo.jpg",
+        "https://www.trulia.com/pictures/thumbs_6/zillowstatic/fp/458e317a380bc8f257196772968a47b7-full.jpg",
+        "https://photos.zillowstatic.com/fp/a55b4dba725687d119610c19743f405d-cc_ft_960.jpg",
+        "https://www.trulia.com/pictures/thumbs_6/zillowstatic/fp/34e5a1fd8249db85b83a7c130cdb3c2b-full.jpg",
+        "https://ap.rdcpix.com/5f8b22aefaa558bdf14e393bb4aa8bafl-m826650285od-w640_h480.jpg",
+        "https://ap.rdcpix.com/687d8ade75b61c97d26196372db7fb4al-m3827662945od-w640_h480.jpg",
+        "https://photos.zillowstatic.com/fp/458430bded0fcd5e548479d696857f06-cc_ft_1536.jpg",
+        "https://p.rdcpix.com/v01/l4b2e9145-m0od-w640_h480.jpg",
+        "https://ap.rdcpix.com/3c4c436acc7b8aa272cb394ece37ce13l-m4024204791od-w640_h480.jpg",
+        "https://photos.zillowstatic.com/fp/c8e73b8d0f94276997e5f3f99f5cb82d-cc_ft_960.jpg",
+        "https://images.rentable.co/113407/72768708/large.jpeg",
+        "https://ssl.cdn-redfin.com/photo/118/mbphoto/812/genMid.S5085812_0.jpg"
+
+    ];
+
+    // Global saved properties array
+    const savedProperties = [];
+
+    // Function to create property card HTML
+    function createPropertyCard(property) {
+        return `
+            <div class="property-card" onclick="flyToProperty(${property.lat}, ${property.lng})">
+                <img src="${property.image}" alt="Property Image">
+                <h3>${property.address}</h3>
+                <p><b>Owner:</b> ${property.owner}</p>
+                <p><b>Value:</b> ${property.value}</p>
+                <p><b>Size:</b> ${property.size} sqft</p>
+            </div>
+        `;
+    }
+
+    // Function to fly to property on map
+    function flyToProperty(lat, lng) {
+        map.flyTo([lat, lng], 16);
+        // Close the panel on mobile
+        if (window.innerWidth < 768) {
+            togglePropertiesPanel();
+        }
+    }
+
+    // Toggle properties panel visibility
+    function togglePropertiesPanel() {
+        const panel = document.getElementById('properties-panel');
+        panel.classList.toggle('show');
+    }
+
+    // Function to add a marker
+    function addMarker(lat, lng, owner, value, size, address, transactions) {
+        const randomImage = houseImages[Math.floor(Math.random() * houseImages.length)];
+        const buttonId = `save-btn-${lat.toString().replace('.', '')}-${lng.toString().replace('.', '')}`;
+
+        // Check if this property is already saved
+        const isSaved = savedProperties.some(p => p.lat === lat && p.lng === lng);
+
+        const popupContent = `
+            <div style="max-width: 300px;">
+                <img src="${randomImage}" alt="House Image" style="width: 100%; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-bottom: 8px;">
+                <b>Owner:</b> ${owner}<br/>
+                <b>Value:</b> ${value}<br/>
+                <b>Size:</b> ${size} sqft<br/>
+                <b>Address:</b> ${address}<br/>
+                <b>Transaction History:</b>
+                <ul style="padding-left: 15px; margin: 5px 0;">
+                    ${transactions.map(tx => `<li style="margin-bottom: 3px;">${tx.date}: ${tx.amount}</li>`).join('')}
+                </ul>
+                <button id="${buttonId}"
+                    class="save-btn ${isSaved ? 'saved' : ''}"
+                    onclick="toggleSaveProperty(${lat}, ${lng}, '${owner.replace(/'/g, "\\'")}', '${value}', ${size}, '${address.replace(/'/g, "\\'")}', '${buttonId}')">
+                    ${isSaved ? 'Saved 📌' : 'Save Property'}
+                </button>
+            </div>
+        `;
+
+        const marker = L.marker([lat, lng], {
+            icon: myIcon,
+            propertyData: { lat, lng, owner, value, size, address, image: randomImage }
+        }).addTo(map).bindPopup(popupContent);
+
+        // Add to all markers array
+        allMarkers.push(marker);
+
+        // Add to properties list
+        const propertyCard = createPropertyCard({
+            lat, lng, owner, value, size, address, image: randomImage
+        });
+        document.getElementById('properties-list').innerHTML += propertyCard;
+
+        return marker;
+    }
+
+    // Toggle property save state
+    function toggleSaveProperty(lat, lng, owner, value, size, address, buttonId) {
+        const btn = document.getElementById(buttonId);
+        const dropdown = document.getElementById("savedProperties");
+
+        // Check if property is already saved
+        const existingIndex = savedProperties.findIndex(p => p.lat === lat && p.lng === lng);
+
+        if (existingIndex >= 0) {
+            // Property is saved - remove it
+            savedProperties.splice(existingIndex, 1);
+
+            // Update button
+            btn.textContent = 'Save Property';
+            btn.classList.remove('saved');
+
+            // Remove from dropdown
+            const options = dropdown.options;
+            for (let i = 0; i < options.length; i++) {
+                if (options[i].value === `${lat},${lng}`) {
+                    dropdown.remove(i);
+                    break;
+                }
+            }
+
+            // If no saved properties left, show default option
+            if (dropdown.options.length === 0) {
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.text = "-- None Yet --";
+                dropdown.appendChild(defaultOption);
+            }
+        } else {
+            // Property is not saved - add it
+            const property = { lat, lng, owner, value, size, address };
+            savedProperties.push(property);
+
+            // Update button
+            btn.textContent = 'Saved 📌';
+            btn.classList.add('saved');
+
+            // Remove default option if it's the only one
+            if (dropdown.options.length === 1 && dropdown.options[0].value === "") {
+                dropdown.remove(0);
+            }
+
+            // Add to dropdown
+            const option = document.createElement("option");
+            option.value = `${lat},${lng}`;
+            option.text = address;
+            dropdown.appendChild(option);
+        }
+
+        // Update localStorage
+        localStorage.setItem("savedProperties", JSON.stringify(savedProperties));
+    }
+
+    // Load saved properties on page load
+    window.onload = function () {
+        const saved = JSON.parse(localStorage.getItem("savedProperties") || "[]");
+        saved.forEach(prop => {
+            savedProperties.push(prop);
+            const option = document.createElement("option");
+            option.value = `${prop.lat},${prop.lng}`;
+            option.text = prop.address;
+            document.getElementById("savedProperties").appendChild(option);
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            map.invalidateSize();
+        });
+
+        // Fetch properties from your Spring Boot endpoint
+        fetchProperties();
+    };
+
+    // Fetch properties from your API
+    function fetchProperties() {
+        // This would call your Spring Boot endpoint
+        // For demo, we'll use the existing addMarker calls
+        addExampleProperties();
+    }
+
+    // Add example properties (would be replaced with your API call)
+
+    function addExampleProperties() {
+        addMarker(40.741895, -73.989308, "Emma Hayes", "$489,000", 2411, "6801 Pine Rd, Manhattan, KS", [
+        { date: "2021-03-15", amount: "$430,000" },
+        { date: "2023-07-12", amount: "$470,000" },
+        { date: "2024-11-08", amount: "$489,000" }
+    ],"Residential");
+
+    addMarker(39.5879977, -75.0672409, "Liam Carter", "$732,000", 1540, "6746 Birch Rd, Manhattan, KS", [
+        { date: "2020-02-10", amount: "$610,000" },
+        { date: "2022-10-21", amount: "$690,000" },
+        { date: "2024-05-05", amount: "$732,000" }
+    ], "Commercial");
+
+    addMarker(39.7107365, -104.9154895, "Olivia Bennett", "$305,000", 832, "9917 Elm Blvd, Manhattan, KS", [
+        { date: "2019-08-05", amount: "$270,000" },
+        { date: "2021-09-13", amount: "$290,000" },
+        { date: "2023-12-01", amount: "$305,000" }
+    ], "Industrial");
+
+    addMarker(46.2748624, -119.3024963, "Noah Mitchell", "$621,000", 950, "8776 Elm Blvd, Manhattan, KS", [
+        { date: "2020-01-19", amount: "$550,000" },
+        { date: "2022-06-30", amount: "$600,000" },
+        { date: "2024-03-14", amount: "$621,000" }
+    ], "Residential");
+
+    addMarker(33.7362224, -84.3551175, "Ava Brooks", "$494,000", 1114, "9143 Cedar Rd, Manhattan, KS", [
+        { date: "2021-05-10", amount: "$420,000" },
+        { date: "2023-01-25", amount: "$460,000" },
+        { date: "2024-06-19", amount: "$494,000" }
+    ], "Commercial");
+
+    addMarker(41.9792657, -71.3273769, "William Ross", "$710,000", 2275, "7465 Maple St, Manhattan, KS", [
+        { date: "2018-07-17", amount: "$630,000" },
+        { date: "2022-02-02", amount: "$690,000" },
+        { date: "2025-01-10", amount: "$710,000" }
+    ], "Industrial");
+
+    addMarker(33.3117312, -112.0644223, "Sophia James", "$358,000", 1250, "9032 Oak Ave, Manhattan, KS", [
+        { date: "2019-04-04", amount: "$310,000" },
+        { date: "2021-11-11", amount: "$340,000" },
+        { date: "2024-09-09", amount: "$358,000" }
+    ], "Residential");
+
+    addMarker(39.9329364, -83.1370328, "James Kelly", "$890,000", 3090, "8821 Spruce Ln, Manhattan, KS", [
+        { date: "2017-08-08", amount: "$780,000" },
+        { date: "2021-03-20", amount: "$850,000" },
+        { date: "2024-12-15", amount: "$890,000" }
+    ]   , "Commercial");
+
+    addMarker(45.5434738, -122.7891069, "Isabella Morgan", "$775,000", 1993, "7812 Hickory Dr, Manhattan, KS", [
+        { date: "2018-10-22", amount: "$720,000" },
+        { date: "2020-12-18", amount: "$740,000" },
+        { date: "2023-10-10", amount: "$775,000" }
+    ], "Industrial");
+
+    addMarker(35.2204064, -80.8692513, "Benjamin Reed", "$435,000", 1417, "9247 Cypress Rd, Manhattan, KS", [
+        { date: "2020-06-06", amount: "$390,000" },
+        { date: "2022-08-23", amount: "$410,000" },
+        { date: "2024-07-01", amount: "$435,000" }
+    ], "Residential");
+
+    addMarker(36.084758, -86.808451, "Charlotte Lee", "$512,000", 1802, "5512 Cherry Ln, Wichita, KS", [
+        { date: "2020-01-11", amount: "$470,000" },
+        { date: "2022-04-30", amount: "$495,000" },
+        { date: "2024-08-14", amount: "$512,000" }
+    ], "Commercial");
+
+    addMarker(45.0450155, -93.3159088, "Lucas Young", "$623,000", 2075, "6634 Pine Ave, Wichita, KS", [
+        { date: "2019-09-25", amount: "$580,000" },
+        { date: "2021-10-02", amount: "$600,000" },
+        { date: "2023-11-22", amount: "$623,000" }
+    ], "Industrial");
+
+    addMarker(39.1804311, -94.5998331, "Mia Cooper", "$710,000", 2233, "7178 Ash Blvd, Wichita, KS", [
+        { date: "2020-06-14", amount: "$660,000" },
+        { date: "2022-12-01", amount: "$690,000" },
+        { date: "2025-01-09", amount: "$710,000" }
+    ], "Residential");
+
+    addMarker(39.6624446, -86.0720577, "Henry Torres", "$567,000", 1321, "7459 Birch Dr, Wichita, KS", [
+        { date: "2018-03-18", amount: "$500,000" },
+        { date: "2021-05-30", amount: "$530,000" },
+        { date: "2024-10-10", amount: "$567,000" }
+    ], "Commercial");
+
+    addMarker(32.9670725, -117.1768522, "Amelia Gray", "$398,000", 1604, "7878 Spruce St, Wichita, KS", [
+        { date: "2019-01-07", amount: "$340,000" },
+        { date: "2021-08-21", amount: "$370,000" },
+        { date: "2024-04-04", amount: "$398,000" }
+    ], "Industrial");
+
+    addMarker(30.1605135, -81.5654584, "Elijah Rivera", "$689,000", 1798, "7921 Hickory Ave, Wichita, KS", [
+        { date: "2020-10-10", amount: "$630,000" },
+        { date: "2022-05-15", amount: "$670,000" },
+        { date: "2024-12-29", amount: "$689,000" }
+    ], "Residential");
+
+    addMarker(32.611016, -97.3595727, "Harper Cox", "$841,000", 1987, "8115 Oak Ln, Wichita, KS", [
+        { date: "2017-11-17", amount: "$770,000" },
+        { date: "2021-01-10", amount: "$810,000" },
+        { date: "2024-06-01", amount: "$841,000" }
+    ], "Commercial");
+
+    addMarker(42.3829672, -83.0905694, "Alexander Perez", "$239,000", 1055, "8212 Cedar Dr, Wichita, KS", [
+        { date: "2018-05-22", amount: "$200,000" },
+        { date: "2021-02-02", amount: "$220,000" },
+        { date: "2024-03-30", amount: "$239,000" }
+    ], "Industrial");
+
+    addMarker(35.1787583, -89.9806051, "Evelyn Hughes", "$612,000", 2190, "8347 Elm St, Wichita, KS", [
+        { date: "2020-07-04", amount: "$570,000" },
+        { date: "2022-03-15", amount: "$590,000" },
+        { date: "2025-01-20", amount: "$612,000" }
+    ], "Residential");
+
+    addMarker(39.2788327, -76.727746, "Daniel Patterson", "$902,000", 3021, "8523 Maple Ave, Wichita, KS", [
+        { date: "2016-08-10", amount: "$850,000" },
+        { date: "2020-10-25", amount: "$880,000" },
+        { date: "2024-05-12", amount: "$902,000" }
+    ], "Commercial");
+
+    addMarker(38.2602424, -85.6852095, "Scarlett Howard", "$473,000", 1910, "7202 Walnut St, Topeka, KS", [
+        { date: "2020-02-20", amount: "$430,000" },
+        { date: "2022-03-11", amount: "$455,000" },
+        { date: "2024-10-08", amount: "$473,000" }
+    ], "Industrial");
+
+    addMarker(43.1032949, -87.9413953, "Jackson Ward", "$385,000", 1404, "7325 Cherry Blvd, Topeka, KS", [
+        { date: "2019-06-17", amount: "$340,000" },
+        { date: "2021-09-25", amount: "$370,000" },
+        { date: "2024-01-03", amount: "$385,000" }
+    ], "Residential");
+
+    addMarker(35.1402957, -106.6330737, "Victoria Murphy", "$549,000", 2113, "7483 Aspen Ave, Topeka, KS", [
+        { date: "2020-05-04", amount: "$500,000" },
+        { date: "2022-07-15", amount: "$530,000" },
+        { date: "2024-12-28", amount: "$549,000" }
+    ], "Commercial");
+
+    addMarker(32.281649, -110.725621, "Sebastian Bryant", "$652,000", 2334, "7651 Poplar Rd, Topeka, KS", [
+        { date: "2018-10-30", amount: "$590,000" },
+        { date: "2021-06-19", amount: "$620,000" },
+        { date: "2025-03-03", amount: "$652,000" }
+    ], "Industrial");
+
+    addMarker(36.7357864, -119.7204073, "Grace Simmons", "$311,000", 1130, "7724 Maple Ln, Topeka, KS", [
+        { date: "2019-03-12", amount: "$270,000" },
+        { date: "2021-12-08", amount: "$290,000" },
+        { date: "2024-07-29", amount: "$311,000" }
+    ], "Residential");
+
+    addMarker(38.5731629, -121.3859312, "Matthew Hughes", "$777,000", 2450, "7832 Birch St, Topeka, KS", [
+        { date: "2020-08-09", amount: "$700,000" },
+        { date: "2022-11-14", amount: "$740,000" },
+        { date: "2025-01-18", amount: "$777,000" }
+    ], "Commercial");
+
+    addMarker(33.4471085, -111.8227591, "Chloe Butler", "$205,000", 900, "7901 Pine Blvd, Topeka, KS", [
+        { date: "2018-05-05", amount: "$180,000" },
+        { date: "2021-02-20", amount: "$195,000" },
+        { date: "2024-06-26", amount: "$205,000" }
+    ], "Industrial");
+
+    addMarker(33.7482375, -84.4241468, "Jack Fisher", "$958,000", 2701, "8023 Spruce Rd, Topeka, KS", [
+        { date: "2019-07-15", amount: "$900,000" },
+        { date: "2022-01-01", amount: "$930,000" },
+        { date: "2025-04-09", amount: "$958,000" }
+    ], "Residential");
+
+    addMarker(35.8561268, -78.6277602, "Lily Foster", "$301,000", 1183, "8124 Cedar Ln, Topeka, KS", [
+        { date: "2020-09-28", amount: "$270,000" },
+        { date: "2022-07-03", amount: "$290,000" },
+        { date: "2024-11-21", amount: "$301,000" }
+    ], "Commercial");
+
+    addMarker(28.453159, -81.491992, "Samuel Richardson", "$478,000", 1610, "8231 Oak Ave, Topeka, KS", [
+        { date: "2018-12-12", amount: "$440,000" },
+        { date: "2021-10-10", amount: "$460,000" },
+        { date: "2024-02-18", amount: "$478,000" }
+    ], "Industrial");
+    }
+
+    // Go to saved property
+    function goToSavedProperty(value) {
+        if (!value) return;
+        const [lat, lng] = value.split(',').map(Number);
+        map.flyTo([lat, lng], 16);
+    }
+
+    // Base + Overlay
+    var baseMaps = {
+        "Classic": osm,
+        "Satellite": googleSat,
+        "Terrain": googleTerrain
+    };
+
+    var overlayMaps = {
+        "Markers": markerLayer
+    };
+
+    // Add control
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+</script>
+</body>
+</html>

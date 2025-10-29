@@ -18,7 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/properties")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // open for React frontend
 public class PropertyController {
 
     private final PropertyService propertyService;
@@ -33,7 +32,7 @@ public class PropertyController {
             @RequestParam(name = "sortBy", defaultValue =AppConstants.SORT_CATEGORIES_BY, required = false) String sortBy,
             @RequestParam(name = "sortOrder", defaultValue =AppConstants.SORT_DIR, required = false) String sortOrder
     ) {
-        PropertyResponse propertyResponse = (PropertyResponse) propertyService.getAllProperties(pageNumber, pageSize, sortBy, sortOrder);
+        PropertyResponse propertyResponse = propertyService.getAllProperties(pageNumber, pageSize, sortBy, sortOrder);
         return new ResponseEntity<>(propertyResponse, HttpStatus.OK);
     }
 
